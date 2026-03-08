@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.stayon.fastui"
+        applicationId = "com.stayon.app"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
