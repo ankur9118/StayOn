@@ -1,4 +1,4 @@
-package com.stayon.fastui
+package com.stayon.app
 
 import org.junit.Test
 

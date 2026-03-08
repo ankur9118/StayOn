@@ -1,6 +1,5 @@
-package com.stayon.fastui.ui.theme
+package com.stayon.app.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

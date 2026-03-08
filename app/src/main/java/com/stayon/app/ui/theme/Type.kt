@@ -1,4 +1,4 @@
-package com.stayon.fastui.ui.theme
+package com.stayon.app.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

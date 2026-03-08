@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.stayon.fastui"
+    namespace = "com.stayon.app"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
