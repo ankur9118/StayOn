@@ -1,0 +1,162 @@
+StayOn Switching Architecture
+
+NetworkMonitor
+      ↓
+WifiScanner
+      ↓
+NetworkDecisionEngine
+      ↓
+SwitchController
+      ↓
+WifiConnector / VPN Router
+
+Ye 5 modules milke StayOn ka core engine banayenge.
+
+1️⃣ NetworkMonitor (already done)
+
+Role:
+
+detect connectivity events
+
+Events:
+
+WiFi connected
+WiFi lost
+Network available
+Network lost
+
+Trigger karega:
+
+scanWifi()
+2️⃣ WifiScanner (already built)
+
+Role:
+
+scan nearby networks
+collect RSSI
+filter invalid SSID
+
+Output:
+
+List<NetworkCandidate>
+
+Example:
+
+[
+  sachin5g   RSSI -61
+  GalaxyF04  RSSI -48
+]
+3️⃣ NetworkDecisionEngine (partially done)
+
+Role:
+
+choose best network
+calculate RSSI difference
+
+Decision rules:
+
+bestRSSI - currentRSSI ≥ threshold
+
+Example:
+
+current = -65
+best    = -48
+diff    = 17
+→ switch
+
+Typical threshold:
+
+10 dBm
+4️⃣ SwitchController (next class)
+
+Role:
+
+prevent frequent switching
+apply cooldown
+trigger switch
+
+Rules:
+
+if diff < threshold → ignore
+if cooldown active → ignore
+else → switch
+
+Example cooldown:
+
+15 seconds
+5️⃣ WifiConnector (Android tricky part)
+
+Android 10+ restrictions ki wajah se options:
+
+Option A
+WifiNetworkSpecifier
+
+Temporary connection.
+
+Option B
+WifiNetworkSuggestion
+
+System chooses network.
+
+Option C (future StayOn Pro)
+Local VPN routing
+
+Network failover control.
+
+Actual Runtime Flow
+WiFi event
+↓
+NetworkMonitor
+↓
+WifiScanner.scan()
+↓
+DecisionEngine.chooseBest()
+↓
+SwitchController.evaluate()
+↓
+WifiConnector.connect()
+Important Safety Rules
+1️⃣ Ping-pong avoid
+switch only if diff ≥ 10
+2️⃣ Cooldown
+wait 15–20 seconds between switches
+3️⃣ Same SSID ignore
+if bestSSID == currentSSID
+→ do nothing
+Recommended Class Structure
+network/
+   NetworkMonitor.kt
+   WifiScanner.kt
+
+engine/
+   NetworkDecisionEngine.kt
+   SwitchController.kt
+
+wifi/
+   WifiConnector.kt
+Tumhare logs ab kya show kar rahe hain
+Current=sachin5g (-61)
+Best=sachin5g (-61)
+Diff=0
+Already connected
+
+Matlab engine correctly bol raha hai:
+
+no switching required
+
+Exactly expected behaviour.
+
+Next thread me start karenge
+
+Next thread ka first step hona chahiye:
+
+NetworkDecisionEngine.kt
+
+jisme:
+
+calculateBestNetwork()
+calculateRSSIDiff()
+shouldSwitch()
+
+functions honge.
+

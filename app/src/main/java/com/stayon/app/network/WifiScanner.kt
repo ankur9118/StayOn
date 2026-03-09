@@ -98,7 +98,10 @@ class WifiScanner(private val context: Context) {
             Log.d("StayOn", "Already connected to best network")
         }
         val difference = bestRSSI - currentRSSI
-
+        Log.d(
+            "StayOn",
+            "Current=$cleanCurrent ($currentRSSI) | Best=$bestSSID ($bestRSSI) | Diff=$difference"
+        )
         Log.d("StayOn", "RSSI difference: $difference")
     }
 }
