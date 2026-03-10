@@ -234,6 +234,10 @@ Source Code
 Repository:
 
 https://github.com/ankur9118/StayOn
+code:
+https://github.com/ankur9118/StayOn/tree/main/app/src/main/java/com/stayon/app/MainActivity.kt
+https://github.com/ankur9118/StayOn/tree/main/app/src/main/java/com/stayon/app/network
+https://github.com/ankur9118/StayOn/README.txt
 
 Development Status
 
@@ -282,9 +286,12 @@ model/
 
 config/
    StayOnConfig.kt
-Core Classes
-StayOnController
 
+-----------------------------------
+Core Classes
+-------------
+StayOnController
+----------------
 Main coordinator.
 
 Responsibilities:
@@ -308,8 +315,10 @@ network available
 Output:
 
 events → StayOnController
-WifiScanner
 
+
+WifiScanner
+-------------
 Responsibilities:
 
 scan nearby WiFi
@@ -338,8 +347,9 @@ ignore current if already best
 Output:
 
 target network OR null
-SwitchController
 
+SwitchController
+----------------
 Responsibilities:
 
 execute WiFi switching
@@ -362,9 +372,12 @@ EXCELLENT
 STRONG
 MEDIUM
 WEAK
-Configuration
-StayOnConfig
 
+
+Configuration
+
+StayOnConfig
+--------------
 Parameters:
 
 RSSI threshold
@@ -396,7 +409,10 @@ SCANNING
 SWITCHING
 ↓
 MONITORING
+
+
 Threading Model
+
 UI → Main Thread
 Engine → Single Worker Thread
 
@@ -411,6 +427,7 @@ switch
 Sequential execution.
 
 Autopilot Logic
+-------------
 scan networks
 ↓
 filter saved networks
