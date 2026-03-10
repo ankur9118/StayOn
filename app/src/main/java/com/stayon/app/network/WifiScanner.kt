@@ -85,7 +85,17 @@ class WifiScanner(private val context: Context) {
                 bestRSSI = rssi
                 bestSSID = ssid
             }
+
         }
+        Log.d("StayOn", "Scan result size: ${results.size}")
+
+        results.forEach { result ->
+            Log.d("StayOn", "SSID: ${result.SSID} | RSSI: ${result.level}")
+        }
+        val bestNetworks = mutableMapOf<String, Int>()
+
+
+
 
         Log.d("StayOn", "Best network: $bestSSID | RSSI: $bestRSSI")
 

@@ -1,0 +1,112 @@
+1️⃣ Current logic (jo tumne likha)
+
+Tumhara button basically ye kar raha hai:
+
+click
+↓
+stayOnEnabled toggle
+↓
+startMonitoring() OR stopMonitoring()
+↓
+scanWifi()
+↓
+button color change
+
+Aur color:
+
+ON  → Green
+OFF → Red
+
+Ye UI feedback ke liye perfect hai.
+
+2️⃣ Small improvement (recommended)
+
+scanWifi() abhi sirf ON ke moment par ek baar run ho raha hai.
+
+if (stayOnEnabled) {
+    monitor.startMonitoring()
+    wifiScanner.scanWifi()
+}
+
+Future me better hoga agar:
+
+NetworkMonitor
+↓
+network event
+↓
+scanWifi()
+
+Matlab scanning monitor se trigger ho.
+
+Filhaal prototype ke liye theek hai.
+
+3️⃣ UI improvement
+
+Button thoda bada aur center me rakho.
+
+Example:
+
+Button(
+    onClick = { ... },
+    modifier = Modifier.fillMaxWidth(),
+    colors = ButtonDefaults.buttonColors(
+        containerColor = if (stayOnEnabled) Color(0xFF2E7D32) else Color(0xFFC62828)
+    )
+)
+
+Isse green/red thoda soft professional color milega.
+
+4️⃣ Future bug avoid karne ke liye
+
+Ye line important hai:
+
+//val monitor = remember{ NetworkMonitor(context) }
+
+Agar monitor har recomposition me create hua toh multiple monitors run ho sakte hain.
+
+Correct pattern:
+
+val monitor = remember { NetworkMonitor(context) }
+
+Same wifiScanner ke liye bhi.
+
+5️⃣ Clean final version
+
+Example structure:
+
+Button(
+    onClick = {
+
+        stayOnEnabled = !stayOnEnabled
+
+        if (stayOnEnabled) {
+            monitor.startMonitoring()
+            wifiScanner.scanWifi()
+        } else {
+            monitor.stopMonitoring()
+        }
+
+        Log.d("StayOn", "StayOn enabled: $stayOnEnabled")
+
+    },
+    colors = ButtonDefaults.buttonColors(
+        containerColor = if (stayOnEnabled) Color.Green else Color.Red
+    )
+) {
+    Text(if (stayOnEnabled) "StayOn ON" else "StayOn OFF")
+}
+Verdict
+
+Tumhara button already:
+
+clean
+simple
+working
+
+hai.
+
+Aur important baat — ye Autopilot UI philosophy se match karta hai:
+
+one button
+clear state
+background 

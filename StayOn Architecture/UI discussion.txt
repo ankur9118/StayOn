@@ -1,0 +1,9 @@
+StayOn
+
+Autopilot: ON
+
+Available Networks
+
+sachin5g      Strong
+Galaxy F04    Excellent
+JioFiber      Medium

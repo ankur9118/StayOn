@@ -1,0 +1,449 @@
+StayOn
+
+StayOn — Be Always Online
+
+StayOn is an Android utility designed to maintain continuous internet connectivity by automatically switching between available networks when connectivity changes.
+
+The goal of StayOn is simple:
+
+Keep the device connected to the internet with minimal interruption.
+
+StayOn works on Android phones and Android TV without requiring root access and remains Play Store compliant.
+
+Project Concept
+
+Android does not automatically switch between WiFi networks in the background.
+If the current network becomes weak or disconnects, the user must manually select another network.
+
+StayOn solves this problem by providing automatic network failover.
+
+StayOn continuously monitors network status and automatically connects to the most appropriate network when connectivity changes.
+
+Target Platforms
+
+Android phones
+
+Android TV
+
+Android TV is a particularly strong use case because users rarely interact with network settings using a remote control.
+
+StayOn allows the device to remain connected automatically without manual intervention.
+
+Network Selection Logic
+
+StayOn uses a two-layer network selection model.
+
+1. Primary Network (User Defined)
+
+The user can define one Primary WiFi network.
+
+Rule:
+
+If the Primary network is available, StayOn will always connect to it, regardless of signal strength.
+
+Example:
+
+Primary Network: Home Fiber
+
+Even if another network has stronger signal strength, the device will reconnect to the Primary network whenever it becomes available.
+
+This ensures that the device always returns to the user's preferred network.
+
+2. Autopilot Mode
+
+If the Primary network is not available, StayOn automatically enters Autopilot Mode.
+
+Autopilot behavior:
+
+Scan available WiFi networks
+
+Filter saved networks
+
+Evaluate signal strength (RSSI)
+
+Select the best available network
+
+Connect automatically
+
+This process happens in the background without user interaction.
+
+3. Mobile Data Fallback
+
+If no saved WiFi networks are available, StayOn automatically falls back to:
+
+Mobile data.
+
+This ensures that the device remains online whenever possible.
+
+Example Decision Flow
+Primary network available?
+        │
+       YES
+        │
+connect to Primary WiFi
+        │
+       NO
+        │
+scan saved WiFi networks
+        │
+select best RSSI network
+        │
+connect automatically
+        │
+if none available
+        │
+fallback to mobile data
+Key Features
+
+Automatic WiFi failover
+
+Best network selection based on signal strength
+
+Primary network preference
+
+Background network monitoring
+
+Mobile data fallback
+
+Autopilot mode (no user interaction required)
+
+Android phone and Android TV support
+
+Future Pro Features
+
+Planned advanced features include:
+
+User-defined Primary WiFi network
+
+Advanced switching rules
+
+Custom failover thresholds
+
+Network stability control
+
+Enhanced automation options
+
+Why Local VPN May Be Used
+
+Android restricts automatic background WiFi switching for third-party apps.
+
+To improve network transition handling, StayOn may use a local VPN-based routing layer.
+
+The VPN layer can help provide:
+
+faster failover
+
+reduced packet loss
+
+better background network control
+
+This approach remains device-local and does not route traffic through external servers.
+
+Architecture Overview
+NetworkMonitor
+      ↓
+WifiScanner
+      ↓
+PrimaryNetworkChecker
+      ↓
+NetworkDecisionEngine
+      ↓
+SwitchController
+      ↓
+WifiConnector / VPN Router
+
+Components:
+
+NetworkMonitor → detects connectivity changes
+
+WifiScanner → scans available WiFi networks
+
+DecisionEngine → evaluates signal strength and rules
+
+SwitchController → prevents unstable switching
+
+WifiConnector → performs network change
+
+Current Development Status
+
+Current stage: core network monitoring and decision engine implemented.
+
+Implemented functionality:
+
+Android Studio project created
+
+Git + GitHub repository setup
+
+Jetpack Compose UI
+
+StayOn ON/OFF toggle
+
+NetworkMonitor implementation
+
+WiFi scan system
+
+RSSI signal evaluation
+
+Best network selection
+
+Initial decision engine
+
+Logging and testing infrastructure
+
+Current Capability
+
+StayOn can currently:
+
+detect network connectivity changes
+
+monitor WiFi and mobile data
+
+scan nearby WiFi networks
+
+evaluate signal strength
+
+determine the best available network
+
+Next Development Goals
+
+Next development milestone:
+
+Implement automatic WiFi switching.
+
+WiFi connection lost
+↓
+scan available saved WiFi networks
+↓
+determine best network
+↓
+switch automatically
+↓
+fallback to mobile data if needed
+Technical Constraints
+
+Device cannot be rooted
+
+App must remain Play Store compliant
+
+Android restricts automatic WiFi switching
+
+These constraints influence the architecture and design of StayOn.
+
+Source Code
+
+Repository:
+
+https://github.com/ankur9118/StayOn
+
+Development Status
+
+StayOn is currently in active development
+StayOn Architecture Blueprint
+High Level Flow
+UI
+↓
+StayOnController
+↓
+NetworkMonitor
+↓
+WifiScanner
+↓
+DecisionEngine
+↓
+SwitchController
+
+Rule:
+
+UI never talks directly to engine modules
+
+UI → Controller → Engine.
+
+Module Structure
+ui/
+   MainActivity.kt
+   AutopilotScreen.kt
+   NetworkRow.kt
+
+core/
+   StayOnController.kt
+   StayOnState.kt
+
+network/
+   NetworkMonitor.kt
+   WifiScanner.kt
+
+engine/
+   DecisionEngine.kt
+   SwitchController.kt
+
+model/
+   NetworkInfo.kt
+   SignalLevel.kt
+
+config/
+   StayOnConfig.kt
+Core Classes
+StayOnController
+
+Main coordinator.
+
+Responsibilities:
+
+start StayOn
+stop StayOn
+receive network events
+trigger scan
+run decision engine
+trigger switching
+NetworkMonitor
+
+Detect network changes.
+
+Events:
+
+wifi connected
+wifi lost
+network available
+
+Output:
+
+events → StayOnController
+WifiScanner
+
+Responsibilities:
+
+scan nearby WiFi
+read RSSI
+remove invalid SSID
+return network list
+
+Output:
+
+List<NetworkInfo>
+DecisionEngine
+
+StayOn ka brain.
+
+Input:
+
+available networks
+current network
+
+Rules:
+
+choose best RSSI
+apply threshold
+ignore current if already best
+
+Output:
+
+target network OR null
+SwitchController
+
+Responsibilities:
+
+execute WiFi switching
+apply cooldown
+verify connection
+handle timeout
+Data Model
+NetworkInfo
+
+Example:
+
+ssid
+rssi
+signalLevel
+isConnected
+
+Signal levels:
+
+EXCELLENT
+STRONG
+MEDIUM
+WEAK
+Configuration
+StayOnConfig
+
+Parameters:
+
+RSSI threshold
+cooldown time
+connection timeout
+
+Example:
+
+threshold = 10 dBm
+cooldown = 15 sec
+timeout = 5 sec
+Engine State Machine
+
+States:
+
+IDLE
+MONITORING
+SCANNING
+SWITCHING
+
+Flow:
+
+IDLE
+↓
+MONITORING
+↓
+SCANNING
+↓
+SWITCHING
+↓
+MONITORING
+Threading Model
+UI → Main Thread
+Engine → Single Worker Thread
+
+Engine execution:
+
+scan
+↓
+decision
+↓
+switch
+
+Sequential execution.
+
+Autopilot Logic
+scan networks
+↓
+filter saved networks
+↓
+choose best RSSI
+↓
+if improvement ≥ threshold
+    switch
+else
+    stay connected
+Manual Override
+
+User selects network:
+
+connect selected network
+↓
+Autopilot OFF
+Future Pro Feature
+
+Primary network rule:
+
+if primary available
+connect primary
+else
+autopilot
+Final Status
+
+Architecture freeze complete.
+
+Next development order:
+
+NetworkInfo
+StayOnConfig
+StayOnController
+DecisionEngine
+SwitchController

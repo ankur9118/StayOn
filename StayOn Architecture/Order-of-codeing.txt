@@ -1,0 +1,184 @@
+StayOn Development Roadmap
+Phase 1 — Foundation (Models + Config)
+1️⃣ SignalLevel.kt
+
+Signal categories define karo.
+
+EXCELLENT
+STRONG
+MEDIUM
+WEAK
+
+Ye UI aur decision engine dono use karenge.
+
+2️⃣ NetworkInfo.kt
+
+Network data model.
+
+Fields:
+
+ssid
+rssi
+signalLevel
+isConnected
+
+Purpose:
+
+Android ScanResult → NetworkInfo
+3️⃣ StayOnConfig.kt
+
+Central configuration.
+
+Example parameters:
+
+rssiThreshold
+switchCooldown
+connectionTimeout
+
+Default values:
+
+threshold = 10
+cooldown = 15 sec
+timeout = 5 sec
+Phase 2 — Engine Core
+4️⃣ DecisionEngine.kt
+
+Yahi StayOn ka brain hai.
+
+Function:
+
+chooseBestNetwork()
+
+Logic:
+
+filter saved networks
+↓
+find best RSSI
+↓
+compare with current network
+↓
+apply threshold
+↓
+return target network or null
+5️⃣ SwitchController.kt
+
+Actual WiFi switching.
+
+Responsibilities:
+
+connect target network
+cooldown control
+connection verification
+timeout handling
+Phase 3 — Coordination Layer
+6️⃣ StayOnController.kt
+
+Ye sab modules ko connect karega.
+
+Dependencies:
+
+NetworkMonitor
+WifiScanner
+DecisionEngine
+SwitchController
+
+Responsibilities:
+
+start StayOn
+stop StayOn
+handle network events
+trigger scan
+run decision engine
+trigger switching
+Phase 4 — Integration
+7️⃣ Connect existing modules
+
+Tum already bana chuke ho:
+
+NetworkMonitor
+WifiScanner
+
+Ab unko controller ke saath integrate karo.
+
+Flow:
+
+NetworkMonitor event
+↓
+StayOnController
+↓
+WifiScanner
+↓
+DecisionEngine
+↓
+SwitchController
+Phase 5 — UI Integration
+8️⃣ UI → Controller
+
+Button logic change karo:
+
+Instead of:
+
+monitor.startMonitoring()
+scanner.scanWifi()
+
+Use:
+
+controller.start()
+controller.stop()
+Phase 6 — Stability
+9️⃣ State machine implement karo
+
+States:
+
+IDLE
+MONITORING
+SCANNING
+SWITCHING
+🔟 Logging system
+
+Har step log kare:
+
+network event
+scan results
+decision result
+switch request
+connection result
+
+Debugging easy ho jayegi.
+
+Final Execution Flow
+User ON
+↓
+StayOnController.start()
+↓
+NetworkMonitor listening
+↓
+Network event
+↓
+WifiScanner.scan()
+↓
+DecisionEngine.chooseBest()
+↓
+SwitchController.connect()
+Recommended Implementation Order (Important)
+
+Coding exactly is order me karo:
+
+SignalLevel
+NetworkInfo
+StayOnConfig
+DecisionEngine
+SwitchController
+StayOnController
+Integration
+UI update
+Good news
+
+Tum already complete kar chuke ho:
+
+NetworkMonitor
+WifiScanner
+UI toggle
+basic scanning logic
+
+Matlab project already Phase 3 ke paas hai.
