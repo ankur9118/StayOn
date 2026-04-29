@@ -1,4 +1,4 @@
-package com.stayon.app
+package com.stayon.app.ui
 import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.material3.Surface

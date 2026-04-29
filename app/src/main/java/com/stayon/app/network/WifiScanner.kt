@@ -4,114 +4,62 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.util.Log
+import com.stayon.app.model.NetworkInfo
+import com.stayon.app.model.SignalLevel
 
 class WifiScanner(private val context: Context) {
 
     private val wifiManager =
         context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    @android.annotation.SuppressLint("MissingPermission")
 
-/*    fun scanWifi() {
+    @SuppressLint("MissingPermission")
+    fun scanWifi(): List<NetworkInfo> {
+        val configuredSsids = wifiManager.configuredNetworks
+            ?.mapNotNull { it.SSID?.replace('"', '') }
+            ?.toSet()
+            .orEmpty()
 
+        val currentSsid = wifiManager.connectionInfo.ssid?.replace('"', '')
+        val results = wifiManager.scanResults.orEmpty()
 
-        val results = wifiManager.scanResults
-        Log.d("StayOn", "Scan result size: ${results.size}")
-        val configuredNetworks = wifiManager.configuredNetworks
-        configuredNetworks?.forEach {
-            Log.d("StayOn", "Saved network: ${it.SSID}")
-        }
+        Log.d("StayOn", "Scanning WiFi: currentSsid=$currentSsid, results=${results.size}")
 
-        Log.d("StayOn", "Available networks:")
+        return results.mapNotNull { result ->
+            val ssid = result.SSID
+            if (ssid.isEmpty()) return@mapNotNull null
 
-        val bestNetworks = mutableMapOf<String, Int>()
-
-     /*   results.forEach {
-
-                    val ssid = it.SSID
-                    val rssi = it.level
-            val security = it.capabilities
-                    //if (ssid.isNotEmpty()) {
-            if (ssid.isNotEmpty() && !security.contains("ESS")) {
-                        val existing = bestNetworks[ssid]
-
-                        if (existing == null || rssi > existing) {
-                            bestNetworks[ssid] = rssi
-                        }
-                    }
-        }*/
-        var bestSSID: String? = null
-        var bestRSSI = -100
-
-        results.forEach {
-
-            val ssid = it.SSID
-            val rssi = it.level
-
-            if (ssid.isNotEmpty() && rssi > bestRSSI) {
-                bestRSSI = rssi
-                bestSSID = ssid
+            NetworkInfo(
+                ssid = ssid,
+                rssi = result.level,
+                signalLevel = SignalLevel.fromRssi(result.level),
+                isConnected = ssid == currentSsid,
+                isSaved = configuredSsids.contains(ssid)
+            )
+        }.also { networks ->
+            networks.forEach {
+                Log.d(
+                    "StayOn",
+                    "Found network: ${it.ssid}, rssi=${it.rssi}, saved=${it.isSaved}, connected=${it.isConnected}"
+                )
             }
         }
+    }
 
-        Log.d("StayOn", "Best network: $bestSSID | RSSI: $bestRSSI")
-        bestNetworks.forEach {
-            Log.d("StayOn", "SSID: ${it.key} | Best RSSI: ${it.value}")
+    @SuppressLint("MissingPermission")
+    fun getCurrentNetworkInfo(): NetworkInfo? {
+        val ssid = wifiManager.connectionInfo.ssid?.replace('"', '') ?: return null
+        val rssi = wifiManager.connectionInfo.rssi
+        val configuredSsids = wifiManager.configuredNetworks
+            ?.mapNotNull { it.SSID?.replace('"', '') }
+            ?.toSet()
+            .orEmpty()
 
-        }
-    }*/
-
-    fun scanWifi() {
-
-        val currentSSID = wifiManager.connectionInfo.ssid
-        Log.d("StayOn", "Current WiFi: $currentSSID")
-
-        val results = wifiManager.scanResults
-
-        Log.d("StayOn", "Available networks:")
-
-        var bestSSID: String? = null
-        var bestRSSI = -100
-        var currentRSSI = -100
-        val cleanCurrent = currentSSID.replace("\"", "")
-
-        results.forEach {
-
-            val ssid = it.SSID
-            val rssi = it.level
-            if (it.SSID == cleanCurrent) {
-                currentRSSI = it.level
-            }
-            if (ssid.isNotEmpty() && rssi > bestRSSI) {
-                bestRSSI = rssi
-                bestSSID = ssid
-            }
-
-        }
-        Log.d("StayOn", "Scan result size: ${results.size}")
-
-        results.forEach { result ->
-            Log.d("StayOn", "SSID: ${result.SSID} | RSSI: ${result.level}")
-        }
-        val bestNetworks = mutableMapOf<String, Int>()
-
-
-
-
-        Log.d("StayOn", "Best network: $bestSSID | RSSI: $bestRSSI")
-
-        if (bestSSID != null && cleanCurrent != bestSSID) {
-
-            Log.d("StayOn", "Better network available → $bestSSID")
-
-        } else {
-
-            Log.d("StayOn", "Already connected to best network")
-        }
-        val difference = bestRSSI - currentRSSI
-        Log.d(
-            "StayOn",
-            "Current=$cleanCurrent ($currentRSSI) | Best=$bestSSID ($bestRSSI) | Diff=$difference"
+        return NetworkInfo(
+            ssid = ssid,
+            rssi = rssi,
+            signalLevel = SignalLevel.fromRssi(rssi),
+            isConnected = true,
+            isSaved = configuredSsids.contains(ssid)
         )
-        Log.d("StayOn", "RSSI difference: $difference")
     }
 }

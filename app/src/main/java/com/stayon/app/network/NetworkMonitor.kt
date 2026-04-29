@@ -9,11 +9,25 @@ import android.util.Log
 
 class NetworkMonitor(private val context: Context) {
 
-    private val TAG = "StayOnNetwork"
+    interface Listener {
+        fun onNetworkAvailable()
+        fun onNetworkLost()
+        fun onNetworkCapabilitiesChanged(isWifi: Boolean, isCellular: Boolean)
+    }
 
+    private val TAG = "StayOnNetwork"
+    private val listeners = mutableSetOf<Listener>()
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+
+    fun addListener(listener: Listener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: Listener) {
+        listeners.remove(listener)
+    }
 
     fun startMonitoring() {
         val request = NetworkRequest.Builder()
@@ -24,25 +38,31 @@ class NetworkMonitor(private val context: Context) {
             override fun onAvailable(network: Network) {
                 Log.d(TAG, "Network available: $network")
                 Log.d("StayOn", "Network became available")
+                listeners.forEach { it.onNetworkAvailable() }
             }
 
             override fun onLost(network: Network) {
                 Log.d(TAG, "Network lost: $network")
                 Log.d("StayOn", "Network disconnected")
+                listeners.forEach { it.onNetworkLost() }
             }
 
             override fun onCapabilitiesChanged(
                 network: Network,
                 networkCapabilities: NetworkCapabilities
             ) {
+                val wifi = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                val cellular = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
 
-                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                if (wifi) {
                     Log.d("StayOn", "WiFi connected")
                 }
 
-                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                if (cellular) {
                     Log.d("StayOn", "Mobile data connected")
                 }
+
+                listeners.forEach { it.onNetworkCapabilitiesChanged(wifi, cellular) }
             }
         }
 
@@ -50,8 +70,11 @@ class NetworkMonitor(private val context: Context) {
     }
 
     fun stopMonitoring() {
-
-        connectivityManager.unregisterNetworkCallback(networkCallback)
+        try {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } catch (ignored: Exception) {
+            Log.w(TAG, "Failed to unregister network callback", ignored)
+        }
 
         Log.d("StayOn", "Network monitor stopped")
     }
